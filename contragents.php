@@ -1,0 +1,39 @@
+<?php
+    require_once 'base.php';
+    $base = new Base('localhost','root','glos2ar12','finance2019');
+
+
+    if(isset($_GET['newContr'])){
+        $newContr = $_GET['newContr'];
+        $query = "INSERT INTO `contragents` VALUES ( default, '$newContr' )";
+        $base->query($query, false);
+        header('Location: contragents.php');
+    }
+        
+    $query = "SELECT `id`, `name` FROM `contragents`";
+    $contrList = $base->query($query, true);
+?>
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Система учета финансов v_0.1</title>
+    </head>
+    <body>
+       <a href="index.php">Назад</a>
+        <h3>Список контрагентов</h3>
+        <ul>
+        <?php
+            forEach($contrList as $key=>$value){
+                print_r('<li>'.$value['name'].'</li>');
+            }
+        ?>
+        </ul>
+        <form action="contragents.php" method="get">
+            <input type="text" name="newContr">
+            
+            <input type="submit">
+        </form>
+    </body>
+</html>
