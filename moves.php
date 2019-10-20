@@ -35,7 +35,7 @@
     
     if($newCheck){
         //Запишем контрагента и дату чека
-        $query = "INSERT INTO `checks` VALUES ( default, '$date', '$contr')";
+        $query = "INSERT INTO `checks` VALUES ( default, '$date', '$contr', '$typeOper')";
         $base->query($query,false);
         $query = "SELECT id from `checks`";
         $idList = $base->query($query,true);
@@ -52,7 +52,7 @@
             }else{
                 $currComment = '';
             }
-            $queryString .= "( default, '$lastId', '$currPrise', '$typeOper', '$currProd', '$currComment'),";
+            $queryString .= "( default, '$lastId', '$currPrise', '$currProd', '$currComment'),";
         }
         $queryString = substr($queryString,0,strlen($queryString)-1);
         //print_r($queryString);
@@ -66,7 +66,7 @@
     $query = "SELECT `id`, `name` FROM `contragents`";
     $contrList = $base->query($query, true);
 
-    $query = "SELECT `id`, `name` FROM `items`";
+    $query = "SELECT `id`, `name` FROM `items` WHERE `category` IS NOT NULL ORDER BY `name`";
     $itemList = $base->query($query, true);
 ?>
 
@@ -80,10 +80,12 @@
         <form action="moves.php" method="get">
             <h3>Операции прихода - расхода</h3>
             Дата:
-            <select name="dataYear" class="dataYear">
-                <option value="2018">2018</option>
-                <option value="2019">2019</option>
-                <option value="2020">2020</option>
+            <select name="dataDay" class="dataDay">
+                <?php
+                    for($i = 1; $i < 31; $i++){
+                        print_r('<option value="'.$i.'">'.$i.'</option>');
+                    }
+                ?>
             </select>
             <select name="dataMonth" class="dataMonth">
                 <option value="01">Январь</option>
@@ -99,13 +101,12 @@
                 <option value="11">Ноябрь</option>
                 <option value="12">Декабрь</option>
             </select>
-            <select name="dataDay" class="dataDay">
-                <?php
-                    for($i = 1; $i < 31; $i++){
-                        print_r('<option value="'.$i.'">'.$i.'</option>');
-                    }
-                ?>
+            <select name="dataYear" class="dataYear">
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
             </select>
+            
             <br/>
             Контрагент: 
             <select name="contr">
@@ -117,14 +118,20 @@
             </select>
             <br/>
             <select name="typeOper">
-                <option value="1">Продажа</option>
+                <option value="1">Заработали</option>
                 <option value="2">Покупка</option>
                 <option value="3">Вернули долг</option>
                 <option value="4">Взяли в долг</option>
+                <option value="5">Приняли в подарок</option>
+                <option value="6">Подарили</option>
+                <option value="7">Десятина</option>
+                <option value="8">Дали в долг</option>
+                <option value="9">Ввод остатков</option>
             </select>
-            <span id="checkSum"></span>
+            <span id="checkSum"></span><input type="submit">
             <br/>
-            Список товаров-услуг:
+            
+            Список товаров-услуг: 
             <table>
                 <thead>
                     <tr>
@@ -146,7 +153,6 @@
                     ?>
                 </tbody>
             </table>
-            <input type="submit">
         </form>
         <script>
             function setCurrDate(){
@@ -166,7 +172,7 @@
                 for(let i = 0; i< sum.length; i++){
                     res += Number(sum[i].value);
                 }
-                document.querySelector('#checkSum').textContent = res;
+                document.querySelector('#checkSum').textContent = res/100;
             }
         </script>
     </body>

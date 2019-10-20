@@ -10,7 +10,7 @@
         header('Location: contragents.php');
     }
         
-    $query = "SELECT `id`, `name` FROM `contragents`";
+    $query = "SELECT `id`, `name` FROM `contragents` ORDER BY `name`";
     $contrList = $base->query($query, true);
 ?>
 

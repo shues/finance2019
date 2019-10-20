@@ -5,7 +5,7 @@
 
     if(isset($_GET['newItem'])){
         $newItem = $_GET['newItem'];
-        $query = "INSERT INTO `items` VALUES ( default, '$newItem' )";
+        $query = "INSERT INTO `items` VALUES ( default, '$newItem', NULL )";
         $base->query($query, false);
         header('Location: items.php');
     }
