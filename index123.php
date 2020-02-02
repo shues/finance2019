@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>Система учета финансов v_0.1</title>
-        <meta charset = "utf8" >
     </head>
     <body>
         <ul>

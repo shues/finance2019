@@ -1,11 +1,11 @@
 <?php
     require_once 'base.php';
-    $base = new Base('localhost','root','glos2ar12','finance2019');
+    $base = new Base();
 
 
     if(isset($_GET['newContr'])){
         $newContr = $_GET['newContr'];
-        $query = "INSERT INTO `contragents` VALUES ( default, '$newContr' )";
+        $query = "INSERT INTO `contragents` VALUES ( default, '$newContr', null )";
         $base->query($query, false);
         header('Location: contragents.php');
     }
@@ -19,6 +19,7 @@
 <html>
     <head>
         <title>Система учета финансов v_0.1</title>
+        <meta charset="utf8">
     </head>
     <body>
        <a href="index.php">Назад</a>

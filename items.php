@@ -1,6 +1,6 @@
 <?php
     require_once 'base.php';
-    $base = new Base('localhost','root','glos2ar12','finance2019');
+    $base = new Base();
 
 
     if(isset($_GET['newItem'])){
@@ -19,6 +19,7 @@
 <html>
     <head>
         <title>Система учета финансов v_0.1</title>
+        <meta charset="utf8">
     </head>
     <body>
        <a href="index.php">Назад</a>

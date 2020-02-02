@@ -1,7 +1,7 @@
 <?php
     require_once 'base.php';
 
-    $base = new Base('localhost','root','glos2ar12','finance2019');
+    $base = new Base();
     
     $rtype = isset($_GET['rtype'])?$_GET['rtype']:null;
     $period = isset($_GET['period'])?$_GET['period']:null;
@@ -24,6 +24,35 @@
     // Запрос для получения списка чеков с контрагентами и операциями за дату
     $query = "select checks.id as num, contragents.name as contr, types.name as oper, sum(sum) as sum from checks left join contragents on contragents.id = checks.contragent left join types on types.id=checks.type left join moves on moves.checkn=checks.id where month(date) = 10 AND dayofmonth(date)=15 group by num, contr, oper";
     
+//Получить список чеков за месяц по дням
+$checks_by_days = "
+  SELECT 
+    dayofmonth(date) as day,
+    checks.id as num, 
+    contragents.name as contr, 
+    types.name as oper, 
+    sum(sum) as sum 
+  FROM 
+    checks 
+  LEFT JOIN
+    contragents 
+  ON 
+    contragents.id = checks.contragent 
+  LEFT JOIN
+    types 
+  ON 
+    types.id=checks.type 
+  WHERE
+    month(date) = $monthNumber 
+  GROUP BY
+    num, 
+    contr, 
+    oper 
+  ORDER BY 
+    day
+";
+
+$checks_by_days_res = $base->query($checks_by_days,true);
 
 $query = "
         SELECT 
@@ -101,13 +130,13 @@ $query = "
                 select 
                     category,
                     type,
-                    sum(sum) as sum 
+                    sum(moves.sum) as sum 
                 from 
                     checks 
                 left join 
                     moves 
                 on 
-                    checks.id=moves.checkn 
+                    moves.checkn=checks.id 
                 left join 
                     items 
                 on 
@@ -249,14 +278,14 @@ $query = "
     ";
     $costRes = $base->query($costQuery,true);
 
-    $cashProfit = "select sum(sum) as profit from checks left join moves on checks.id = moves.checkn where month(date) <= $monthNumber and (type=1 or type=4 or type=5 or type=9)";
-    $cashCost = "select sum(sum) as cost from checks left join moves on checks.id = moves.checkn where month(date) <= $monthNumber and (type=2 or type=3 or type=6 or type=7 or type=8)";
+    $cashProfit = "select sum(moves.sum) as profit from checks left join moves on checks.id = moves.checkn where month(date) <= $monthNumber and (type=1 or type=4 or type=5 or type=9)";
+    $cashCost = "select sum(moves.sum) as cost from checks left join moves on checks.id = moves.checkn where month(date) <= $monthNumber and (type=2 or type=3 or type=6 or type=7 or type=8)";
 
     $cashProfitRes = $base->query($cashProfit,true);
     $cashCostRes = $base->query($cashCost,true);
     $cash = $cashProfitRes[0]['profit'] - $cashCostRes[0]['cost'];
 
-    $contragentQuery = "select date, contragents.name, sum from checks left join moves on checks.id=moves.checkn left join contragents on contragent=contragents.id where (type=1 or type=4 or type=5 or type=9) and month(date) = $monthNumber order by date;";
+    $contragentQuery = "select date, contragents.name, moves.sum from checks left join moves on checks.id=moves.checkn left join contragents on contragent=contragents.id where (type=1 or type=4 or type=5 or type=9) and month(date) = $monthNumber order by date;";
     
     $contragentRes = $base->query($contragentQuery,true);
 ?>
@@ -265,6 +294,7 @@ $query = "
 <html>
     <head>
         <title>Система учета финансов v_0.1</title>
+        <meta charset="utf8">
         <style>
             body{
                 margin: 0;
@@ -426,6 +456,45 @@ $query = "
                     print_r('Общий расход: '.$sum);
                 ?>
                 </h4>
+            </div>
+        </div>
+        <div class="detailSection">
+          <div class="categoryCost">
+                <h3>Расход по чекам</h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Контрагент</th>
+                      <th>Операция</th>
+                      <th>Сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    /*  dayofmonth(date) as day,
+                        checks.id as num, 
+                        contragents.name as contr, 
+                        types.name as oper, 
+                        sum(sum) as sum */
+                        $globalCost = 0;
+                        forEach($checks_by_days_res as $key=>$value){
+                            $sum = number_format($value['sum']/100,2);
+                            $contr = $value['contr'];
+                            $oper = $value['oper'];
+                            $day = $value['day'];
+                        ?>
+                    <tr>
+                      <td><?php print_r($day); ?></td>
+                      <td><?php print_r($contr); ?></td>
+                      <td><?php print_r($oper); ?></td>
+                      <td><?php print_r($sum); ?></td>
+                    </tr>
+                      <?php
+                          }
+                      ?>
+                  </tbody>
+                </table>
             </div>
         </div>
     </body>

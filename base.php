@@ -5,7 +5,8 @@
         private $password;
         private $base;
         
-        function __construct($host, $login, $password, $base){
+        //function __construct($host='localhost', $login='shues_finance', $password='glos2ar12', $base='shues_finance'){
+      function __construct($host='localhost', $login='root', $password='glos2ar12', $base='finance2019'){
             $this->host = $host;
             $this->login = $login;
             $this->password = $password;
